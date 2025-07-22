@@ -32,6 +32,7 @@ streamlit run autism_app.py
 
 This project integrates a Streamlit-based web interface that was adapted from publicly available code.
 The original author and source are unknown. I do not claim ownership of the interface and have used it solely for educational and demonstration purposes.
-The image classification model for autism detection is entirely my original work, trained using a custom CNN architecture and dataset.
+The image classification model for autism detection was created using Google's Teachable Machine, with a custom dataset.
+The model architecture and training were carried out through the Teachable Machine platform, and the integration into this project is entirely my original work.
 
 
