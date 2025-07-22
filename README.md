@@ -35,4 +35,8 @@ The original author and source are unknown. I do not claim ownership of the inte
 The image classification model for autism detection was created using Google's Teachable Machine, with a custom dataset.
 The model architecture and training were carried out through the Teachable Machine platform, and the integration into this project is entirely my original work.
 
+## License
 
+This project is licensed under the **Creative Commons Attribution-NonCommercial 4.0 International (CC BY-NC 4.0)** License.
+You are free to use, share, and adapt the contents of this repository for **non-commercial purposes**, provided that proper **attribution is given**.
+🔗 [View License Details](https://creativecommons.org/licenses/by-nc/4.0/)
