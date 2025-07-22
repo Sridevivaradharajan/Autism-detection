@@ -2,12 +2,16 @@
 
 This project integrates a Streamlit-based web interface with an image classification model trained using [Google Teachable Machine](https://teachablemachine.withgoogle.com/). The goal is to assist in the early detection of Autism Spectrum Disorder (ASD) by analyzing uploaded images.
 
+---
+
 ## Key Features
 
 - Upload images directly through a Streamlit web app
 - CNN-based autism detection model trained via Teachable Machine
 - Real-time prediction results displayed on the interface
 - Fully local deployment (runs using Python + Streamlit)
+
+---
 
 ## How to Run the App
 
@@ -20,6 +24,8 @@ pip install -r requirements.txt
 3. Run the Streamlit App
 streamlit run autism_app.py
 
+---
+
 ## Model Info
 
 - Built using Google Teachable Machine (image project)
@@ -27,6 +33,8 @@ streamlit run autism_app.py
 - Files used:
   - `keras_model.h5`:Trained CNN model
   - `labels.txt`:Class label definitions
+
+---
 
 ## Acknowledgements
 
