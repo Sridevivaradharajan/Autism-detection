@@ -1,83 +1,122 @@
 import streamlit as st
+import numpy as np
 import pandas as pd
-import plotly.express as px
-from streamlit_option_menu import option_menu
-from PIL import Image
-import time
-import requests
-from streamlit_lottie import st_lottie
+from PIL import Image, ImageOps
+from keras.models import load_model
+from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import train_test_split
+from sklearn import svm
 
-st.set_page_config(layout="wide")
-# Security
-#passlib,hashlib,bcrypt,scrypt
-import hashlib
-def make_hashes(password):
-	return hashlib.sha256(str.encode(password)).hexdigest()
+# Setup
+st.set_page_config(page_title="Autisense", layout="centered")
+np.set_printoptions(suppress=True)
 
-def check_hashes(password,hashed_text):
-	if make_hashes(password) == hashed_text:
-		return hashed_text
-	return False
-# DB Management
-import sqlite3 
-conn = sqlite3.connect('data.db')
-c = conn.cursor()
-# DB  Functions
-def create_usertable():
-	c.execute('CREATE TABLE IF NOT EXISTS userstable(username TEXT,password TEXT)')
+# Sidebar Navigation
+pages = ["Home", "Upload Image (Teachable CNN)", "Form Test (SVM)"]
+page = st.sidebar.radio("🔍 Choose Page", pages)
 
+# ----------------- HOME PAGE -----------------
+if page == "Home":
+    st.markdown("""
+        <style>
+        .main-title {
+            font-size:40px;
+            font-weight:bold;
+            color:#4A90E2;
+            text-align:center;
+            margin-bottom:10px;
+        }
+        .subtext {
+            font-size:18px;
+            text-align:center;
+            color:#555;
+        }
+        </style>
+    """, unsafe_allow_html=True)
 
-def add_userdata(username,password):
-	c.execute('INSERT INTO userstable(username,password) VALUES (?,?)',(username,password))
-	conn.commit()
+    st.markdown('<div class="main-title">🧠 Autisense: Autism Detection Tool</div>', unsafe_allow_html=True)
+    st.markdown('<div class="subtext">Assess Autism Spectrum Disorder using Machine Learning & Image Analysis</div>', unsafe_allow_html=True)
 
-def login_user(username,password):
-	c.execute('SELECT * FROM userstable WHERE username =? AND password = ?',(username,password))
-	data = c.fetchall()
-	return data
+    st.markdown("---")
+    st.markdown("### Use the sidebar to navigate to:")
+    st.markdown("- 📷 **Image-based Detection**")
+    st.markdown("- 📋 **Questionnaire-based Test (SVM)**")
 
+    st.markdown("---")
+    with st.expander("ℹ️ About This App"):
+        st.markdown("""
+        This app uses:
+        - A **CNN model** trained with Teachable Machine for image classification.
+        - An **SVM model** trained on questionnaire data to classify ASD likelihood.
+        """)
 
-def view_all_users():
-	c.execute('SELECT * FROM userstable')
-	data = c.fetchall()
-	return data
+# ----------------- IMAGE-BASED CNN PAGE -----------------
+elif page == "Upload Image (Teachable CNN)":
+    st.title("📷 Image-based Autism Prediction")
 
-with st.sidebar:
-    selected=option_menu(
-        menu_title="Start Here!",
-        options=["Signup","Login"],
-        icons=["box-seam-fill","box-seam-fill"],
-        menu_icon="home",
-        default_index=0
-    )
+    cnn_model = load_model(r"C:\Autism_detection\keras_Model.h5", compile=False)
+    class_names = open(r"C:\Autism_detection\labels.txt", "r").readlines()
 
+    uploaded_file = st.file_uploader("Upload a child's image...", type=["jpg", "jpeg", "png"])
+    if uploaded_file is not None:
+        image = Image.open(uploaded_file)
+        st.image(image, caption="Uploaded Image", use_column_width=True)
 
-if selected=="Signup" :
+        size = (224, 224)
+        image = ImageOps.fit(image, size, Image.Resampling.LANCZOS)
+        image_array = np.asarray(image)
+        normalized_image_array = (image_array.astype(np.float32) / 127.5) - 1
+        data = np.ndarray(shape=(1, 224, 224, 3), dtype=np.float32)
+        data[0] = normalized_image_array
 
-    st.title(":iphone: :blue[Create New Account]")
-    new_user = st.text_input("Username")
-    new_password = st.text_input("Password",type='password')
-    if st.button("Signup"):
-        create_usertable()
-        add_userdata(new_user,make_hashes(new_password))
-        st.success("You have successfully created a valid Account")
-        st.info("Go to Login Menu to login")
+        prediction = cnn_model.predict(data)
+        index = np.argmax(prediction)
+        class_name = class_names[index].strip()
+        confidence_score = prediction[0][index]
 
+        st.markdown("### 🔍 Prediction Result")
+        st.success(f"**Class**: {class_name}")
+        st.info(f"**Confidence Score**: {confidence_score:.2f}")
 
-elif selected=="Login" :
-    st.title(":calling: :blue[Login Section]")
-    username = st.text_input("User Name")
-    password = st.text_input("Password",type='password')
-    if st.button("Login"):
-        create_usertable()
-        hashed_pswd = make_hashes(password)
-        result = login_user(username,check_hashes(password,hashed_pswd))
-        prog=st.progress(0)
-        for per_comp in range(100):
-            time.sleep(0.05)
-            prog.progress(per_comp+1)
-        if result:
-            st.success("Logged In as {}".format(username))
-            st.warning("Go to Dashboard!")
+# ----------------- FORM-BASED SVM PAGE -----------------
+elif page == "Form Test (SVM)":
+    st.title("📋 Questionnaire-Based Prediction")
+
+    # Train SVM on dataset
+    autism_dataset = pd.read_csv(r'C:\Autism_detection\asd_data_csv.csv')
+    X = autism_dataset.drop(columns='Outcome', axis=1)
+    Y = autism_dataset['Outcome']
+    scaler = StandardScaler()
+    X_scaled = scaler.fit_transform(X)
+    X_train, X_test, Y_train, Y_test = train_test_split(X_scaled, Y, test_size=0.2, stratify=Y, random_state=2)
+    classifier = svm.SVC(kernel='linear')
+    classifier.fit(X_train, Y_train)
+
+    # Form Inputs
+    def ValueCount(val): return 1 if val == "Yes" else 0
+    def Sex(val): return 1 if val == "Female" else 0
+
+    val10 = Sex(st.selectbox("Gender", ["Female", "Male"]))
+    val2 = st.selectbox("Age", list(range(2, 19)))
+    val1 = st.selectbox("Social Responsiveness", list(range(0, 11)))
+    val3 = ValueCount(st.selectbox("Speech Delay", ["No", "Yes"]))
+    val4 = ValueCount(st.selectbox("Learning Disorder", ["No", "Yes"]))
+    val5 = ValueCount(st.selectbox("Genetic Disorders", ["No", "Yes"]))
+    val6 = ValueCount(st.selectbox("Depression", ["No", "Yes"]))
+    val7 = ValueCount(st.selectbox("Intellectual Disability", ["No", "Yes"]))
+    val8 = ValueCount(st.selectbox("Social/Behavioural Issues", ["No", "Yes"]))
+    val9 = ValueCount(st.selectbox("Anxiety Disorder", ["No", "Yes"]))
+    val11 = ValueCount(st.selectbox("Suffers from Jaundice", ["No", "Yes"]))
+    val12 = ValueCount(st.selectbox("Family History of ASD", ["No", "Yes"]))
+
+    # Make Prediction
+    input_data = [val1, val2, val3, val4, val5, val6, val7, val8, val9, val10, val11, val12]
+    input_np = np.asarray(input_data).reshape(1, -1)
+    std_input = scaler.transform(input_np)
+    prediction = classifier.predict(std_input)
+
+    with st.expander("🧾 View Result"):
+        if prediction[0] == 0:
+            st.success(" The child is not having Autism Spectrum disorder.")
         else:
-            st.warning("Incorrect Username/Password")
+            st.warning(" The child is having Autism Spectrum disorder")
