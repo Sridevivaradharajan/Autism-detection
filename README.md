@@ -17,8 +17,8 @@ This project integrates a Streamlit-based web interface with an image classifica
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/YOUR_USERNAME/autism-detection-teachable.git
-   cd autism-detection-teachable
+   git clone https://github.com/Sridevivaradharajan/Autism-detection.git
+   cd Autism-detection
 2. Install Required Libraries
 pip install -r requirements.txt
 3. Run the Streamlit App
