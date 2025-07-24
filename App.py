@@ -12,7 +12,7 @@ st.set_page_config(page_title="Autisense", layout="centered")
 np.set_printoptions(suppress=True)
 
 # Sidebar Navigation
-pages = ["Home", "Upload Image (Teachable CNN)", "Form Test (SVM)"]
+pages = ["Home", "Image analysis", "Form"]
 page = st.sidebar.radio("🔍 Choose Page", pages)
 
 # ----------------- HOME PAGE -----------------
@@ -51,11 +51,11 @@ if page == "Home":
         """)
 
 # ----------------- IMAGE-BASED CNN PAGE -----------------
-elif page == "Upload Image (Teachable CNN)":
+elif page == "Image analysis":
     st.title("📷 Image-based Autism Prediction")
 
-    cnn_model = load_model(r"C:\Autism_detection\keras_Model.h5", compile=False)
-    class_names = open(r"C:\Autism_detection\labels.txt", "r").readlines()
+    cnn_model = load_model(r"C:\Confidential\Autism_detection\keras_Model.h5", compile=False)
+    class_names = open(r"C:\Confidential\Autism_detection\labels.txt", "r").readlines()
 
     uploaded_file = st.file_uploader("Upload a child's image...", type=["jpg", "jpeg", "png"])
     if uploaded_file is not None:
@@ -79,11 +79,11 @@ elif page == "Upload Image (Teachable CNN)":
         st.info(f"**Confidence Score**: {confidence_score:.2f}")
 
 # ----------------- FORM-BASED SVM PAGE -----------------
-elif page == "Form Test (SVM)":
+elif page == "Form":
     st.title("📋 Questionnaire-Based Prediction")
 
     # Train SVM on dataset
-    autism_dataset = pd.read_csv(r'C:\Autism_detection\asd_data_csv.csv')
+    autism_dataset = pd.read_csv(r'C:\Confidential\Autism_detection\asd_data_csv.csv')
     X = autism_dataset.drop(columns='Outcome', axis=1)
     Y = autism_dataset['Outcome']
     scaler = StandardScaler()
