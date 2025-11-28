@@ -38,11 +38,3 @@ streamlit run autism_app.py
 
 ## Acknowledgements
 This project integrates a Streamlit-based web interface for autism prediction. The image classification model was developed using Google’s Teachable Machine with a custom dataset. While the model architecture and training were completed on the platform, the integration and interface development are entirely my original work. The model predicts autism-related traits in children with ASD using both image input and Autism Spectrum Quotient (AQ)-based behavioral indicators.
-
----
-
-## License
-
-This project is licensed under the **Creative Commons Attribution-NonCommercial 4.0 International (CC BY-NC 4.0)** License.
-You are free to use, share, and adapt the contents of this repository for **non-commercial purposes**, provided that proper **attribution is given**.
-🔗 [View License Details](https://creativecommons.org/licenses/by-nc/4.0/)
